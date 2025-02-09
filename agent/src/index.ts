@@ -35,7 +35,6 @@ import {
     type Client,
     Clients,
     DbCacheAdapter,
-    defaultCharacter,
     elizaLogger,
     FsCacheAdapter,
     type IAgentRuntime,
@@ -48,6 +47,7 @@ import {
     stringToUuid,
     validateCharacterConfig,
 } from "@elizaos/core";
+import { defaultCharacter } from "../character/newsflowai";
 import { zgPlugin } from "@elizaos/plugin-0g";
 import { footballPlugin } from "@elizaos/plugin-football";
 
@@ -160,6 +160,12 @@ import { quickIntelPlugin } from "@elizaos/plugin-quick-intel";
 
 import { trikonPlugin } from "@elizaos/plugin-trikon";
 import arbitragePlugin from "@elizaos/plugin-arbitrage";
+
+// MY Actions...
+// import { getNewsAction } from "./actions/getNews";
+import { newsFlowAIPlugin } from "./plugin-newsflowai";
+// import { getNewsAction } from "./actions/getNews";
+
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
 const __dirname = path.dirname(__filename); // get the name of the directory
 
@@ -1018,6 +1024,7 @@ export async function createAgent(
         character,
         // character.plugins are handled when clients are added
         plugins: [
+            newsFlowAIPlugin,
             parseBooleanFromText(getSecret(character, "BITMIND")) &&
             getSecret(character, "BITMIND_API_TOKEN")
                 ? bittensorPlugin
