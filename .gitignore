@@ -67,6 +67,7 @@ coverage
 .eslintcache
 
 agent/content
+!src/actions/*.ts
 
 eliza.manifest
 eliza.manifest.sgx
