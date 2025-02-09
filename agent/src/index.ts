@@ -163,7 +163,7 @@ import arbitragePlugin from "@elizaos/plugin-arbitrage";
 
 // MY Actions...
 // import { getNewsAction } from "./actions/getNews";
-import { newsFlowAIPlugin } from "./plugin-newsflowai";
+import { newsFlowAIPlugin } from "./plugin-newsflowai.ts";
 // import { getNewsAction } from "./actions/getNews";
 
 const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
