@@ -33,7 +33,8 @@ export const TwitterNewsProvider: Provider = {
                 const tweetsArray = [];
 
                 for await (const tweet of scraper.getTweets(account, 20)) {
-                    tweetsArray.push(tweet);                }
+                    tweetsArray.push(tweet);
+                }
 
                 latestTweets.push({ account, tweets: tweetsArray });
             }
@@ -44,7 +45,10 @@ export const TwitterNewsProvider: Provider = {
                 .map(
                     ({ account, tweets }) =>
                         `🔹 **${account}**:\n${tweets
-                            .map((t: any) => `- ${t.text}`)
+                            .map(
+                                (t: any) =>
+                                    `- ${t.text}\n  🔗 [View Tweet](https://twitter.com/${account}/status/${t.id})`
+                            )
                             .join("\n")}`
                 )
                 .join("\n\n");
