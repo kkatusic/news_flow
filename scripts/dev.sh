@@ -113,7 +113,17 @@ if [ -d "./agent" ]; then
     WATCH_PATHS+=("--watch './packages/$FOLDER/dist'")
   done
 
+  WATCH_PATHS+=("--watch './agent'")
+
   COMMANDS+=("nodemon ${WATCH_PATHS[@]} -e js,json,map --delay 2 --exec 'pnpm --dir agent dev -- $*'")
+else
+  echo "Warning: 'agent' directory not found."
+fi
+
+
+# Add nodemon for hot reload (watching `src/` instead of `dist/`)
+if [ -d "./agent" ]; then
+  COMMANDS+=("nodemon --watch './agent/src' -e ts,json --exec 'pnpm --dir agent dev -- $*'")
 else
   echo "Warning: 'agent' directory not found."
 fi
