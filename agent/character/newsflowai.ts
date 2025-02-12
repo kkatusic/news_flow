@@ -1,12 +1,13 @@
 import { Character, ModelProviderName } from "@elizaos/core";
 import twitterPlugin from "@elizaos/plugin-primus";
 // import { newsFlowAIPlugin } from "../src/plugin-newsflowai";
+import { Clients } from "@elizaos/core";
 
 export const defaultCharacter: Character = {
     name: "NewsFlow AI",
     username: "newsflow",
     plugins: [twitterPlugin],
-    clients: [],
+    clients: [Clients.DISCORD],
     modelProvider: ModelProviderName.OPENAI,
     settings: {
         secrets: {},

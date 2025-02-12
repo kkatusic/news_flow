@@ -6,6 +6,8 @@ import {
     State,
     type Action,
 } from "@elizaos/core";
+import { TwitterNewsProvider } from "../providers/twitterNewsProvider";
+import { DiscordNewsProvider } from "../providers/discordNewsProvider";
 
 export const getNewsAction: Action = {
     name: "GET_NEWS",
@@ -36,24 +38,40 @@ export const getNewsAction: Action = {
     ): Promise<boolean> => {
         console.log("[DEBUG] Running GET_NEWS action...");
 
-        // Fetch news data (replace with real API call)
-        const trendingNews = [
-            "Ethereum upgrade expected soon.",
-            "Bitcoin ETF gaining momentum.",
-            "Solana DeFi sees record volumes.",
-            "Web3 social platforms on the rise.",
-            "Regulators discussing crypto adoption.",
-        ];
-
-        // Notify the user
-        await _callback({ text: "Fetching the latest Web3 news..." });
-
-        // Send all news in a single response
         await _callback({
-            text: `Here are 5 trending Web3 news stories:\n\n${trendingNews
-                .map((news, i) => `${i + 1}. ${news}`)
-                .join("\n")}`,
+            text: "Fetching the latest news from Twitter and Discord...",
         });
+
+        // Fetch news from Twitter
+        // const twitterNews = await TwitterNewsProvider.get(
+        //     _runtime,
+        //     _message,
+        //     _state
+        // );
+        // Fetch news from Discord
+        const discordNews = await DiscordNewsProvider.get(
+            _runtime,
+            _message,
+            _state
+        );
+
+        // // Store in state memory for AI processing
+        // _state.memory["latest_news"] = {
+        //     twitter: twitterNews,
+        //     discord: discordNews,
+        // };
+
+        // Format the response
+        const formattedNews = `
+            **Latest Web3 News**:
+            
+            **📢 Twitter Updates:**
+            No new for now!!!
+            **💬 Discord Discussions:**
+            ${discordNews}
+        `;
+
+        await _callback({ text: formattedNews });
 
         return true;
     },

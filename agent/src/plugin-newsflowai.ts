@@ -1,6 +1,8 @@
 import { Plugin } from "@elizaos/core";
 import { getNewsAction } from "./actions/getNews.ts";
-import { TwitterNewsProvider } from "./providers/twitterNewsProvider.ts";
+// import { TwitterNewsProvider } from "./providers/twitterNewsProvider.ts";
+import { DiscordNewsProvider } from "./providers/discordNewsProvider.ts";
+import { questionEvaluator } from "./evaluators/getDiscordQuestion.ts";
 
 // import { getCurrentNewsAction } from "./actions/currentNews.ts";
 // import { factEvaluator } from "./evaluators/fact.ts";
@@ -13,6 +15,7 @@ import { TwitterNewsProvider } from "./providers/twitterNewsProvider.ts";
 export const newsFlowAIPlugin: Plugin = {
     name: "newflowaiplugin",
     description: "News Flow AI agent plugin",
-    actions: [getNewsAction],
-    providers: [TwitterNewsProvider],
+    // actions: [getNewsAction],
+    providers: [DiscordNewsProvider],
+    evaluators: [questionEvaluator],
 };
