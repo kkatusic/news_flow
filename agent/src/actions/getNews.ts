@@ -1,4 +1,9 @@
-import { HandlerCallback } from "@elizaos/core";
+import {
+    elizaLogger,
+    generateMessageResponse,
+    HandlerCallback,
+    ModelClass,
+} from "@elizaos/core";
 import {
     ActionExample,
     IAgentRuntime,
@@ -38,42 +43,60 @@ export const getNewsAction: Action = {
     ): Promise<boolean> => {
         console.log("[DEBUG] Running GET_NEWS action...");
 
-        await _callback({
-            text: "Fetching the latest news from Twitter and Discord...",
-        });
+        try {
+            await _callback({
+                text: "Fetching the latest news from Twitter and Discord...",
+            });
 
-        // Fetch news from Twitter
-        // const twitterNews = await TwitterNewsProvider.get(
-        //     _runtime,
-        //     _message,
-        //     _state
-        // );
-        // Fetch news from Discord
-        const discordNews = await DiscordNewsProvider.get(
-            _runtime,
-            _message,
-            _state
-        );
+            // Fetch news from Twitter
+            const twitterNews = await TwitterNewsProvider.get(
+                _runtime,
+                _message,
+                _state
+            );
+            // Fetch news from Discord
+            const discordNews = await DiscordNewsProvider.get(
+                _runtime,
+                _message,
+                _state
+            );
 
-        // // Store in state memory for AI processing
-        // _state.memory["latest_news"] = {
-        //     twitter: twitterNews,
-        //     discord: discordNews,
-        // };
+            // Format the response
+            const context = `
+                You will get twitter and discord news.\n
+                You will return only 5 most trending web3 news compbining tweets and most trending posts from discord.\n\n
+                **📢 Twitter Updates News:**
+                ${twitterNews}
+                **💬 Discord Discussions News:**
+                ${discordNews}
 
-        // Format the response
-        const formattedNews = `
-            **Latest Web3 News**:
-            
-            **📢 Twitter Updates:**
-            No new for now!!!
-            **💬 Discord Discussions:**
-            ${discordNews}
-        `;
+                Your answer would be like this\n\n\n
+                **Latest 5 Web3 News**:
+                - News 1
+                - News 2
+                - News 3
+                - News 4
+                - News 5
+            `;
 
-        await _callback({ text: formattedNews });
+            const projectValidationAnswer = await generateMessageResponse({
+                runtime: _runtime,
+                context,
+                modelClass: ModelClass.LARGE,
+            });
+            _callback({
+                text: projectValidationAnswer.text,
+            });
 
-        return true;
+            return true;
+        } catch (error: any) {
+            elizaLogger.error("Error in NewsAGIplugin handler:", error);
+            _callback({
+                text: `Error fetching boosted projects: ${error.message}`,
+                content: { error: error.message },
+            });
+            return false;
+        }
     },
     // rewrite action examples to ask for a hello world
     examples: [

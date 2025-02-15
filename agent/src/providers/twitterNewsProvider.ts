@@ -33,7 +33,7 @@ export const TwitterNewsProvider: Provider = {
         let loggedIn = false;
 
         try {
-            // **Load cookies before login**
+            // Load and apply cookies if they exist
             if (fs.existsSync(COOKIE_PATH)) {
                 try {
                     const rawCookies = JSON.parse(
@@ -45,61 +45,14 @@ export const TwitterNewsProvider: Provider = {
                             "[WARNING] Cookie file is empty or corrupted."
                         );
                     } else {
-                        console.log("[DEBUG] Loaded raw cookies:", rawCookies);
-
-                        // **Convert JSON cookies to valid Cookie objects**
-                        const cookieJar = new CookieJar();
-                        for (const cookie of rawCookies) {
-                            if (
-                                !cookie.name ||
-                                !cookie.value ||
-                                !cookie.domain
-                            ) {
-                                console.warn(
-                                    "[WARNING] Skipping invalid cookie:",
-                                    cookie
-                                );
-                                continue;
-                            }
-                            try {
-                                const parsedCookie = new Cookie({
-                                    key: cookie.name,
-                                    value: cookie.value,
-                                    domain: cookie.domain,
-                                    path: cookie.path || "/",
-                                    secure: cookie.secure ?? true, // Ensure secure cookies are set properly
-                                    httpOnly: cookie.httpOnly ?? false, // Ensure httpOnly is handled properly
-                                    expires: cookie.expires
-                                        ? new Date(cookie.expires)
-                                        : undefined,
-                                });
-
-                                // Set the cookie in the jar
-                                await cookieJar.setCookie(
-                                    parsedCookie.toString(),
-                                    `https://${cookie.domain}`
-                                );
-                            } catch (cookieError) {
-                                console.error(
-                                    "[ERROR] Failed to parse cookie:",
-                                    cookieError
-                                );
-                            }
-                        }
-
-                        // **Extract valid cookies from CookieJar**
-                        const validCookies = cookieJar.getCookiesSync(
-                            "https://twitter.com"
-                        );
-                        console.log(
-                            "[DEBUG] Setting formatted cookies:",
-                            validCookies
+                        const validCookies = rawCookies.map(
+                            (cookie) =>
+                                `${cookie.key}=${cookie.value}; Domain=${cookie.domain}; Path=${cookie.path}`
                         );
 
-                        // **Apply cookies to the scraper**
                         await scraper.setCookies(validCookies);
 
-                        // **Check if login is needed**
+                        // Verify login status
                         loggedIn = await scraper.isLoggedIn();
                         if (loggedIn) {
                             console.log(
@@ -121,7 +74,7 @@ export const TwitterNewsProvider: Provider = {
                 console.warn("[WARNING] No saved cookies found.");
             }
 
-            // **Only login if cookies failed**
+            // Perform manual login if needed
             if (!loggedIn) {
                 console.log("[DEBUG] Attempting manual login...");
                 await scraper.login(
@@ -130,7 +83,7 @@ export const TwitterNewsProvider: Provider = {
                 );
                 console.log("[DEBUG] Login successful!");
 
-                // **Save new cookies after login**
+                // Save new cookies after login
                 const newCookies = await scraper.getCookies();
                 if (Array.isArray(newCookies) && newCookies.length > 0) {
                     fs.writeFileSync(
@@ -153,14 +106,14 @@ export const TwitterNewsProvider: Provider = {
             }
 
             let request =
-                "# You will check all these tweets and return only 5 most trending tweets including links.\n";
+                "# You will check all these tweets and return only 5 most trending tweets including link for each tweet to that tweet.\n";
             request += latestTweets
                 .map(
                     ({ account, tweets }) =>
                         `🔹 **${account}**:\n${tweets
                             .map(
                                 (t: any) =>
-                                    `- ${t.text}\n  🔗 [View Tweet](https://twitter.com/${account}/status/${t.id})`
+                                    `- ${t.text}\n  🔗 https://twitter.com/${account}/status/${t.id}`
                             )
                             .join("\n")}`
                 )

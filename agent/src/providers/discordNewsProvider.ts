@@ -37,14 +37,10 @@ export const DiscordNewsProvider: Provider = {
                     for (const channelId of CHANNEL_IDS) {
                         const channel = await client.channels.fetch(channelId);
 
-                        console.log("channel", channel);
-
                         if (channel && channel.isTextBased()) {
                             const messages = await channel.messages.fetch({
                                 limit: 15,
                             }); // Fetch last 5 messages
-
-                            console.log("messages", messages);
 
                             newsMessages.push(
                                 `🔹 **${
