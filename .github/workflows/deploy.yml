@@ -23,7 +23,7 @@ jobs:
             - name: Deploy to cPanel
               run: |
                   ssh -p ${{ secrets.CPANEL_PORT }} -i ~/.ssh/id_rsa_github_cpanel_aig_be ${{ secrets.CPANEL_USERNAME }}@${{ secrets.CPANEL_HOST }} << 'EOF'
-                  cd /home2/${{ secrets.CPANEL_USERNAME }}/newsaibe/agent
+                  cd /home2/${{ secrets.CPANEL_USERNAME }}/newsaibe
                   git pull origin main
                   pnpm install --prod
                   pm2 restart all
