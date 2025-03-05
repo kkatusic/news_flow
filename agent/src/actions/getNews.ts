@@ -1,6 +1,6 @@
 import {
     elizaLogger,
-    generateMessageResponse,
+    generateText,
     HandlerCallback,
     ModelClass,
 } from "@elizaos/core";
@@ -79,13 +79,13 @@ export const getNewsAction: Action = {
                 - News 5
             `;
 
-            const projectValidationAnswer = await generateMessageResponse({
+            const projectValidationAnswer = await generateText({
                 runtime: _runtime,
                 context,
                 modelClass: ModelClass.LARGE,
             });
             _callback({
-                text: projectValidationAnswer.text,
+                text: projectValidationAnswer,
             });
 
             return true;

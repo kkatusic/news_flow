@@ -1,0 +1,30 @@
+name: Deploy to cPanel
+
+on:
+    push:
+        branches:
+            - main # Runs only when code is pushed or merged to main
+
+jobs:
+    deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v3
+
+            - name: Setup SSH key
+              run: |
+                  mkdir -p ~/.ssh
+                  echo "${{ secrets.ID_RSA_GITHUB_CPANEL_AIG_BE }}" > ~/.ssh/id_rsa_github_cpanel_aig_be
+                  chmod 600 ~/.ssh/id_rsa_github_cpanel_aig_be
+                  ssh-keyscan -p ${{ secrets.CPANEL_PORT }} -H ${{ secrets.CPANEL_HOST }} >> ~/.ssh/known_hosts
+
+            - name: Deploy to cPanel
+              run: |
+                  ssh -p ${{ secrets.CPANEL_PORT }} -i ~/.ssh/id_rsa_github_cpanel_aig_be ${{ secrets.CPANEL_USERNAME }}@${{ secrets.CPANEL_HOST }} << 'EOF'
+                  cd /home2/${{ secrets.CPANEL_USERNAME }}/newsaibe/agent
+                  git pull origin main
+                  pnpm install --prod
+                  pm2 restart all
+                  EOF
