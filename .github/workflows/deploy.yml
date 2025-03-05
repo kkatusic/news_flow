@@ -23,8 +23,31 @@ jobs:
             - name: Deploy to cPanel
               run: |
                   ssh -p ${{ secrets.CPANEL_PORT }} -i ~/.ssh/id_rsa_github_cpanel_aig_be ${{ secrets.CPANEL_USERNAME }}@${{ secrets.CPANEL_HOST }} << 'EOF'
+                  set -e  # Stop script if any command fails
+
+                  # Navigate to deployment folder
                   cd /home2/${{ secrets.CPANEL_USERNAME }}/newsaibe
-                  git pull origin main
+
+                  # Ensure the directory is a git repository
+                  if [ ! -d ".git" ]; then
+                    git init
+                    git remote add origin https://github.com/kkatusic/news_flow.git
+                  fi
+
+                  # Pull the latest code
+                  git fetch origin main
+                  git reset --hard origin/main
+
+                  # Install dependencies
+                  if ! command -v pnpm &> /dev/null; then
+                    npm install -g pnpm
+                  fi
                   pnpm install --prod
-                  pm2 restart all
+
+                  # Restart application if PM2 is installed
+                  if command -v pm2 &> /dev/null; then
+                    pm2 restart all
+                  else
+                    echo "PM2 not found, skipping restart"
+                  fi
                   EOF
