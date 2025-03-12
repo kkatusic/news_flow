@@ -44,17 +44,12 @@ export const getNewsAction: Action = {
         console.log("[DEBUG] Running GET_NEWS action...");
 
         try {
-            await _callback({
-                text: "Fetching the latest news from Twitter and Discord...",
-            });
-
-            // Fetch news from Twitter
+            // Fetch news from Twitter and Discord silently without intermediate callbacks
             const twitterNews = await TwitterNewsProvider.get(
                 _runtime,
                 _message,
                 _state
             );
-            // Fetch news from Discord
             const discordNews = await DiscordNewsProvider.get(
                 _runtime,
                 _message,
@@ -64,7 +59,7 @@ export const getNewsAction: Action = {
             // Format the response
             const context = `
                 You will get twitter and discord news.\n
-                You will return only 5 most trending web3 news compbining tweets and most trending posts from discord.\n\n
+                You will return only 5 most trending web3 news combining tweets and most trending posts from discord.\n\n
                 **📢 Twitter Updates News:**
                 ${twitterNews}
                 **💬 Discord Discussions News:**
@@ -84,6 +79,8 @@ export const getNewsAction: Action = {
                 context,
                 modelClass: ModelClass.LARGE,
             });
+
+            // Send only one final response
             _callback({
                 text: projectValidationAnswer,
             });
@@ -92,7 +89,7 @@ export const getNewsAction: Action = {
         } catch (error: any) {
             elizaLogger.error("Error in NewsAGIplugin handler:", error);
             _callback({
-                text: `Error fetching boosted projects: ${error.message}`,
+                text: `Error fetching news: ${error.message}`,
                 content: { error: error.message },
             });
             return false;
@@ -132,7 +129,7 @@ export const getNewsAction: Action = {
             {
                 user: "{{user1}}",
                 content: {
-                    text: "Can you tell me what’s hot this month in crypto today?",
+                    text: "Can you tell me what's hot this month in crypto today?",
                 },
             },
             {
@@ -145,7 +142,7 @@ export const getNewsAction: Action = {
             {
                 user: "{{user2}}",
                 content: {
-                    text: "Top trending crypto news:\n\n1. Bitcoin surpasses $50K...\n2. Ethereum L2 adoption skyrockets...\n3. New regulations impact DeFi...\n4. Solana’s latest upgrade boosts performance...\n5. Web3 gaming sees a huge surge.",
+                    text: "Top trending crypto news:\n\n1. Bitcoin surpasses $50K...\n2. Ethereum L2 adoption skyrockets...\n3. New regulations impact DeFi...\n4. Solana's latest upgrade boosts performance...\n5. Web3 gaming sees a huge surge.",
                 },
             },
         ],
